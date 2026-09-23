@@ -1,0 +1,51 @@
+1.  Use cross_val_score to test accuracy
+python
+from sklearn.model_selection import cross_val_score
+from sklearn.svm import SVC
+from sklearn.datasets import load_digits
+
+# Example dataset
+X, y = load_digits(return_X_y=True)
+
+# Define model
+svm = SVC(kernel='linear')
+
+# Perform 5-fold cross-validation
+scores = cross_val_score(svm, X, y, cv=5)
+
+print("Cross-validation scores:", scores)
+print("Mean accuracy:", scores.mean())
+2.  Implement GridSearchCV for SVM
+python
+from sklearn.model_selection import GridSearchCV
+
+# Define parameter grid
+param_grid = {
+    'C': [0.1, 1, 10],
+    'kernel': ['linear', 'rbf'],
+    'gamma': ['scale', 'auto']
+}
+
+# GridSearchCV
+grid = GridSearchCV(SVC(), param_grid, cv=5, scoring='accuracy')
+grid.fit(X, y)
+
+print("Best parameters:", grid.best_params_)
+print("Best accuracy:", grid.best_score_)
+3.  Save trained model using joblib
+python
+import joblib
+
+# Save the best model
+joblib.dump(grid.best_estimator_, "svm_model.pkl")
+print("Model saved as svm_model.pkl")
+4.  Load model and predict on new data
+python
+# Load model
+loaded_model = joblib.load("svm_model.pkl")
+
+# Predict on new sample
+sample = X[0].reshape(1, -1)
+prediction = loaded_model.predict(sample)
+
+print("Predicted class:", prediction)
