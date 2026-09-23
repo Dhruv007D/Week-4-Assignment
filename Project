@@ -1,0 +1,79 @@
+Option 2: Bank Loan Approval Prediction
+Dataset:
+Kaggle – Loan Prediction Dataset
+Workflow:
+● Clean categorical data (Gender, Marital Status, Income)
+● Train Random Forest / XGBoost model
+● Evaluate with Confusion Matrix
+● Predict if loan can be approved
+Outcome: Practical classification problem
+
+
+1.Load and inspect dataset
+
+import pandas as pd
+
+# Load dataset (adjust filename if needed)
+data = pd.read_csv(path + "/train.csv")
+print(data.head())
+
+2.Clean catgeorical data 
+
+from sklearn.preprocessing import LabelEncoder
+
+# Fill missing values
+data = data.fillna(method='ffill')
+
+# Encode categorical columns
+categorical_cols = ['Gender', 'Married', 'Education', 'Self_Employed', 'Property_Area']
+for col in categorical_cols:
+    data[col] = LabelEncoder().fit_transform(data[col])
+
+# Features and target
+X = data.drop("Loan_Status", axis=1)
+y = LabelEncoder().fit_transform(data["Loan_Status"])  # Y/N → 0/1
+
+3.Train Test Split 
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+4.TRain Random Forest/XGBOOST
+
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+
+# Random Forest
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# XGBoost
+xgb_model = XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+xgb_model.fit(X_train, y_train)
+
+5.Evaluate With Confusion Matrix
+
+from sklearn.metrics import confusion_matrix, classification_report
+
+# Random Forest predictions
+rf_pred = rf_model.predict(X_test)
+print("Random Forest Confusion Matrix:\n", confusion_matrix(y_test, rf_pred))
+print(classification_report(y_test, rf_pred))
+
+# XGBoost predictions
+xgb_pred = xgb_model.predict(X_test)
+print("XGBoost Confusion Matrix:\n", confusion_matrix(y_test, xgb_pred))
+print(classification_report(y_test, xgb_pred))
+
+6.PRedict Loan Approval for new applicant 
+
+# Example new applicant data (replace with real values)
+new_applicant = X_test.iloc[0].values.reshape(1, -1)
+
+rf_prediction = rf_model.predict(new_applicant)
+xgb_prediction = xgb_model.predict(new_applicant)
+
+print("Random Forest Prediction:", "Approved" if rf_prediction[0] == 1 else "Rejected")
+print("XGBoost Prediction:", "Approved" if xgb_prediction[0] == 1 else "Rejected")
+
